@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect} from "react";
+import mammoth from "mammoth";
 
 export default function Home() {
   const [tab, setTab] = useState("home");
@@ -8,14 +9,21 @@ export default function Home() {
   const [showMessage, setShowMessage] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value);
+  useEffect(() => {
+    resetTextArea();
+  }, [content]);
 
+  const resetTextArea = () => {
     const el = textareaRef.current;
     if (!el) return;
 
     el.style.height = "auto";
     el.style.height = el.scrollHeight + "px";
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value);
+    resetTextArea();
   };
 
   const handleSubmit = () => {
@@ -28,6 +36,56 @@ export default function Home() {
     }
     else {
       setShowMessage(true);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fileType = file.name.split(".").pop()?.toLowerCase();
+    if (fileType == "pdf") {
+      const pdfjsLib = await import("pdfjs-dist");
+
+      pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+        "pdfjs-dist/build/pdf.worker.min.mjs",
+        import.meta.url
+      ).toString();
+
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+      let text = "";
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+
+        let lastY: number | null = null;
+        let pageText = "";
+
+        content.items.forEach((item: any) => {
+          const y = item.transform[5];
+
+          if (lastY !== null && Math.abs(lastY - y) > 5) {
+            pageText += "\n";
+          }
+
+          pageText += item.str + " ";
+          lastY = y;
+        });
+
+        text += pageText + "\n\n";
+      }
+
+      setContent(text);
+    }
+    else if (fileType == "docx") {
+      const arrayBuffer = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer });
+
+      setContent(result.value);
     }
   };
 
@@ -58,6 +116,13 @@ export default function Home() {
               Viet vao day
             </h2>
 
+            <input
+              type = "file"
+              accept = ".pdf, .docx"
+              onChange = {handleFileUpload}
+              className = "border p-2 rounded-md w-fit"
+            />
+
             <textarea
               ref = {textareaRef}
               value = {content}
@@ -68,25 +133,26 @@ export default function Home() {
 
             <button
               className = "flex justify-end hover:underline border-r px-4 py-2"
-              onClick={handleSubmit}
+              onClick = {handleSubmit}
             >
               Nop bai
             </button>
+            
           </div>
         )}
       </div>
 
       {showMessage && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/30">
-          <div className="relative bg-white rounded-lg shadow-lg p-6 w-80 text-center">
+        <div className = "fixed inset-0 flex items-center justify-center bg-black/30">
+          <div className = "relative bg-white rounded-lg shadow-lg p-6 w-80 text-center">
             <button
-              onClick={handleSubmit}
+              onClick = {handleSubmit}
               className="absolute top-2 right-2 text-gray-500 hover:text-black"
             >
               X
             </button>
 
-            <h3 className="text-lg font-semibold mb-2">
+            <h3 className = "text-lg font-semibold mb-2">
               Nộp bài thành công
             </h3>
 
