@@ -6,12 +6,13 @@ export default function Home() {
   const [tab, setTab] = useState("home");
   const [content, setContent] = useState("");
   const [showMessage, setShowMessage] = useState(false);
-  const textareaRef = useRef(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
 
     const el = textareaRef.current;
+    if (!el) return;
 
     el.style.height = "auto";
     el.style.height = el.scrollHeight + "px";
@@ -90,18 +91,18 @@ export default function Home() {
             </h3>
 
             <p className="text-gray-600">
-  AI Writing Score: {Math.min(95, Math.floor(content.length / 5))}%
-</p>
+              AI Writing Score: {Math.min(95, Math.floor(content.length / 5))}%
+            </p>
 
-<p className="text-gray-600">
-  Reference Check: {content.includes("doi") ? "Valid references" : "Missing DOI detected"}
-</p>
+            <p className="text-gray-600">
+              Reference Check: {content.includes("doi") ? "Valid references" : "Missing DOI detected"}
+            </p>
 
-<p className="text-gray-600">
-  Suggested Venue: {content.toLowerCase().includes("security")
-    ? "ACM CCS"
-    : "IEEE Access"}
-</p>
+            <p className="text-gray-600">
+              Suggested Venue: {content.toLowerCase().includes("security")
+                ? "ACM CCS"
+                : "IEEE Access"}
+            </p>
 
           </div>
         </div>
