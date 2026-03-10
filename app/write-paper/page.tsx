@@ -77,7 +77,7 @@ const handleCheck = async () => {
 /*Logic AI detect */
 const handleAIDetect = async () => {
   if (!text.trim()) {
-    alert("Please enter text to analyze");
+    alert("Vui lòng nhập nội dung cần kiểm tra");
     return;
   }
 
@@ -97,7 +97,7 @@ const handleAIDetect = async () => {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.error || "AI detect failed");
+      throw new Error(data.error || "Không thể kiểm tra văn bản");
     }
 
     setAiResult(data);
@@ -116,7 +116,7 @@ const handleAIDetect = async () => {
     if (!file) return;
 
     if (file.type !== "application/pdf") {
-      alert("Please upload a PDF file");
+      alert("Hãy chọn file PDF");
       return;
     }
 
