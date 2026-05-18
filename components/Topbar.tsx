@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import ThemeToggle from "./ThemeToggle";
+// import ThemeToggle from "./ThemeToggle";
 import { useEffect, useState } from "react";
 
 type User = {
@@ -67,9 +67,6 @@ export default function Topbar() {
 
       {/* RIGHT */}
       <div className="ml-auto flex items-center gap-4">
-
-        <ThemeToggle />
-
         {!user ? (
           <Link href="/auth/login">
             <button className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium shadow hover:scale-105 hover:shadow-lg transition">
